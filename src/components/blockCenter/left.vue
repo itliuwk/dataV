@@ -4,10 +4,10 @@
       <p>营收情况</p>
       <div class="tips">
         <span>近两年实际+本年预算，营收同比折现</span>
-        <select aria-checked="1" class="left-select">
-          <option value="0">月度营收</option>
-          <option value="1">季度营收</option>
-          <option value="2">年度营收</option>
+        <select class="left-select">
+          <option value="3">月度营收</option>
+          <option selected value="2">季度营收</option>
+          <option value="1">年度营收</option>
         </select>
       </div>
     </div>
@@ -17,7 +17,7 @@
 
 <script>
 export default {
-  name: 'hello',
+  name: 'left',
   data () {
     return {}
   },
@@ -42,6 +42,7 @@ export default {
           axisPointer: {
             type: 'cross',
             crossStyle: {
+              width: 0,
               color: '#fff'
             }
           }
@@ -62,7 +63,7 @@ export default {
         xAxis: [
           {
             type: 'category',
-            data: ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7'],
+            data: ['Q1', 'Q2', 'Q3', 'Q4'],
             axisPointer: {
               type: 'shadow'
             },
@@ -72,6 +73,9 @@ export default {
           }
         ],
         yAxis: {
+          axisLine: {
+            show: false
+          },
           splitLine: {
             show: true,
             lineStyle: {
@@ -83,7 +87,7 @@ export default {
           {
             name: 't2020',
             type: 'bar',
-            data: [32.6, 20.0, 6.4, 23.2, 25.6, 76.7, 135.6],
+            data: [32.6, 220.0, 126.4, 123.2, 25.6, 76.7, 135.6],
             itemStyle: {
               color: '#147EE1'
             }
@@ -91,7 +95,7 @@ export default {
           {
             name: 't2021',
             type: 'bar',
-            data: [182.2, 48.7, 18.8, 26.4, 28.7, 70.7, 175.6],
+            data: [232.2, 248.7, 328.8, 126.4, 28.7, 70.7, 175.6],
             itemStyle: {
               color: '#28A855'
             }
@@ -99,7 +103,7 @@ export default {
           {
             name: 'ys2021',
             type: 'bar',
-            data: [70.7, 175.6, 182.2, 26.4, 28.7, 70.7, 175.6],
+            data: [120.7, 225.6, 228.2, 126.4, 28.7, 70.7, 175.6],
             itemStyle: {
               color: '#D5B119'
             }
@@ -107,9 +111,9 @@ export default {
           {
             name: 'zhexian',
             type: 'line',
-            data: [20.3, 23.4, 23.0, 4.5, 6.3, 10.2, 20.3, 6.2],
+            data: [15.3, 23.4, 223.0, 104.5, 6.3, 100.2, 20.3, 6.2],
             itemStyle: {
-              color: '#fff'
+              color: '#33FFFF'
             }
           }
         ]

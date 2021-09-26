@@ -15,6 +15,7 @@
 
 <script>
 import dayjs from 'dayjs'
+import screenfull from 'screenfull'
 import { isFullscreenForNoScroll } from '../utils/index'
 const DAY = {
   0: '星期日',
@@ -38,6 +39,8 @@ export default {
   },
   mounted () {
     window.addEventListener('resize', this.chartssize)
+    window.addEventListener('keydown', this.keydown)
+
     setInterval(() => {
       this.time = dayjs().format('HH:mm:ss')
     }, 1000)
@@ -48,41 +51,29 @@ export default {
       if (event.keyCode === 122) {
         event.preventDefault()
         event.returnValue = false
+        this.toggle()
       }
     },
     chartssize () {
       let fullscreenForNoScroll = isFullscreenForNoScroll()
       this.isFullscreenForNoScroll = fullscreenForNoScroll
     },
+    toggle () {
+      if (!screenfull.isEnabled) {
+        // 如果不支持进入全屏，发出不支持提示
+        this.$message({
+          message: '您的浏览器版本过低不支持全屏显示！',
+          type: 'warning'
+        })
+        return false
+      }
+      screenfull.toggle()
+    },
     opi () {
       let fullscreenForNoScroll = isFullscreenForNoScroll()
       this.isFullscreenForNoScroll = fullscreenForNoScroll
-      !fullscreenForNoScroll ? this.fullScreen() : this.exitFullscreen()
-    },
-    fullScreen () {
-      var element = document.documentElement
-      if (element.requestFullscreen) {
-        element.requestFullscreen()
-      } else if (element.msRequestFullscreen) {
-        element.msRequestFullscreen()
-      } else if (element.mozRequestFullScreen) {
-        element.mozRequestFullScreen()
-      } else if (element.webkitRequestFullscreen) {
-        element.webkitRequestFullscreen()
-      }
-    },
 
-    // 退出全屏
-    exitFullscreen () {
-      if (document.exitFullscreen) {
-        document.exitFullscreen()
-      } else if (document.msExitFullscreen) {
-        document.msExitFullscreen()
-      } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen()
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen()
-      }
+      this.toggle()
     }
   }
 }

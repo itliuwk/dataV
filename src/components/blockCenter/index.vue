@@ -10,6 +10,7 @@
 import Left from './left'
 import Center from './center'
 import Right from './right'
+
 export default {
   name: 'index',
   components: {
@@ -18,12 +19,10 @@ export default {
     Right
   },
   data () {
-    return {
-      cHeight: ''
-    }
+    return {}
   },
-  methods: {},
-  mounted () {}
+  mounted () {},
+  methods: {}
 }
 </script>
 

@@ -1,21 +1,29 @@
 <template>
   <div id="data-view">
-    <dv-full-screen-container>
+    <ScreenAdapter>
       <top-header />
       <div class="main-content">
         <div class="block-top">
           <div class="block-top-left">
             <p>
-              <span>2021年累计营收</span>
-              <span>1235万元</span>
-              <span>预算完成率98%</span>
+              <span>{{ year }}年累计营收</span>
+              <span>{{ cumulative.actualRevenue }}万元</span>
+              <span
+                >预算完成率{{
+                  parseInt(cumulative.revenueBudgetRate * 100)
+                }}%</span
+              >
             </p>
           </div>
           <div class="block-top-right">
             <p>
-              <span>2021年累计利润</span>
-              <span>1235万元</span>
-              <span>预算完成率89%</span>
+              <span>{{ year }}年累计利润</span>
+              <span>{{ cumulative.actualProfit }}万元</span>
+              <span
+                >预算完成率{{
+                  parseInt(cumulative.revenueProfitRate * 100)
+                }}%</span
+              >
             </p>
           </div>
         </div>
@@ -28,25 +36,37 @@
           </div>
         </template>
       </div>
-    </dv-full-screen-container>
+    </ScreenAdapter>
   </div>
 </template>
 
 <script>
+import {
+  getRevenueSituation,
+  getPassengerFlow,
+  getCumulative
+} from '../api/index'
+import dayjs from 'dayjs'
 import topHeader from './topHeader'
 import BlockCenter from './blockCenter/index'
 import BlockBottom from './blockBottom'
+import ScreenAdapter from './ScreenAdapter'
 
 export default {
   name: 'DataView',
   components: {
+    ScreenAdapter,
     topHeader,
     BlockCenter,
     BlockBottom
   },
   data () {
     return {
-      clientHeight: document.body.clientHeight
+      clientHeight: document.body.clientHeight,
+      clientWidth: document.body.clientWidth,
+      cumulative: {},
+      revenueStructure: [],
+      year: dayjs().year()
     }
   },
   mounted () {
@@ -54,8 +74,36 @@ export default {
     // setTimeout(() => {
     //   this.onResize()
     // }, 1000)
+    this.getInit()
   },
   methods: {
+    getInit () {
+      this.getCumulative()
+      this.getRevenueSituation()
+      this.getPassengerFlow()
+    },
+    //  累计 利润 营收
+    getCumulative () {
+      getCumulative({ busType: 1, monthKey: dayjs().year() }).then(res => {
+        console.log('[ getCumulative ] >', res)
+        if (res.msg === 'ok') {
+          this.cumulative = (res && res.payload && res.payload[0]) || {}
+        }
+      })
+    },
+
+    // 营收情况
+    getRevenueSituation () {
+      getRevenueSituation({ type: 2, year: dayjs().year() }).then(res => {
+        console.log('res: ', res)
+      })
+    },
+    // 客流情况 -- 各利润中心
+    getPassengerFlow () {
+      getPassengerFlow({ type: 2, year: dayjs().year() }).then(res => {
+        console.log('res: ', res)
+      })
+    },
     onResize () {
       this.clientHeight = document.body.clientHeight
     }
@@ -82,7 +130,7 @@ export default {
     height: calc(100% - 100px);
     display: flex;
     flex-direction: column;
-    padding: 0 30px 30px;
+    padding: 0 30px;
     .block-top {
       height: 10%;
       display: flex;

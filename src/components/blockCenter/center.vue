@@ -3,10 +3,14 @@
     <div class="title">
       <p>营收结构</p>
       <div class="tips">
-        <select aria-checked="1" class="left-select">
-          <option value="0">月度营收</option>
-          <option value="1">季度营收</option>
-          <option value="2">年度营收</option>
+        <select
+          aria-checked="1"
+          class="left-select"
+          @change="selChange($event)"
+        >
+          <option value="3" selected>月度营收</option>
+          <option value="2">季度营收</option>
+          <option value="1">年度营收</option>
         </select>
       </div>
     </div>
@@ -15,26 +19,95 @@
 </template>
 
 <script>
+import { getRevenueStructure } from '../../api/index'
 export default {
-  name: 'hello',
+  name: 'center',
   data () {
-    return {}
+    return {
+      selVal: 3
+    }
   },
   mounted () {
-    window.addEventListener('resize', this.chartssize)
-    this.chartssize()
+    window.addEventListener('resize', () => {
+      this.getRevenueStructure(this.selVal)
+    })
+    this.getRevenueStructure()
   },
   methods: {
-    chartssize () {
+    selChange (e) {
+      this.getRevenueStructure(e.target.value)
+      this.selVal = e.target.value
+    },
+    // 营收结构
+    getRevenueStructure (type = 3) {
       let cHeight = document.querySelector('.block-center').offsetHeight
       let titHeight = document.querySelector('.title').offsetHeight
       document.querySelector('#myChartCenter').style.height =
         cHeight - titHeight + 'px'
-      this.myChart && this.myChart.resize()
-      !this.myChart && this.drawLine()
+
+      let year = this.$dayjs().year()
+      let month = this.$dayjs().month()
+      getRevenueStructure({
+        type,
+        month: month + 1,
+        // quarter: '',
+        year
+      }).then(res => {
+        if (res.msg === 'ok') {
+          let prevFilter = ''
+          let nextFilter = ''
+          // 年度
+          if (type == 1) {
+            prevFilter = this.$dayjs().year() - 1
+            nextFilter = this.$dayjs().year()
+          }
+          // 季度
+          if (type == 2) {
+            prevFilter = this.$dayjs().year() - 1
+            nextFilter = this.$dayjs().year()
+          }
+
+          // 月度
+          if (type == 3) {
+            // 逻辑：判断月份是否等于1月份  等于1月份的话  prev需要取上一年的12月份
+            // dayjs 的月份 默认 是 0开始
+            month = month + 1
+            let obj = {
+              year: month === 1 ? year - 1 : year,
+              month: month < 10 ? '0' + (month - 1) : month.toString()
+            }
+            prevFilter = obj.year + (obj.month === '00' ? '12' : obj.month)
+            nextFilter = year + (month < 10 ? '0' + month : month.toString())
+          }
+
+          let payload = (res && res.payload) || ''
+          if (!payload) return
+          let prev = payload
+            .filter(item => item.monthKey == prevFilter)
+            .sort((a, b) => a.busSeg.charCodeAt() - b.busSeg.charCodeAt())
+
+          let curr = payload
+            .filter(item => item.monthKey == nextFilter)
+            .sort((a, b) => a.busSeg.charCodeAt() - b.busSeg.charCodeAt())
+          let revenueStructure = [prev, curr]
+          console.log('revenueStructure: ', revenueStructure)
+
+          this.myChart && this.myChart.resize()
+          this.drawLine(revenueStructure, prevFilter, nextFilter)
+        }
+      })
     },
-    drawLine () {
+    drawLine (revenueStructure, prevFilter, nextFilter) {
       let myChart = this.$echarts.init(document.getElementById('myChartCenter'))
+      let xData = revenueStructure[0].map(item => item.busSeg)
+      let prev = revenueStructure[0].map(item =>
+        parseInt(item.revenueRatio * 100)
+      )
+      let curr = revenueStructure[1].map(item =>
+        parseInt(item.revenueRatio * 100)
+      )
+      let prevName = 't' + prevFilter
+      let currName = 't' + nextFilter
       // 绘制图表
       let option = {
         tooltip: {
@@ -42,6 +115,7 @@ export default {
           axisPointer: {
             type: 'cross',
             crossStyle: {
+              width: 0,
               color: '#fff'
             }
           }
@@ -54,7 +128,7 @@ export default {
           right: 0
         },
         legend: {
-          data: ['t2020', 't2021'],
+          data: [prevName, currName],
           orient: 'vertical',
           left: 'center',
           bottom: 'bottom'
@@ -62,18 +136,20 @@ export default {
         xAxis: [
           {
             type: 'category',
-            data: [
-              '星乐度',
-              '希尔顿',
-              '文传中心',
-              '户外公共教育',
-              '好玩横琴巴士',
-              '文旅展示中心'
-            ]
+            data: xData,
+            axisPointer: {
+              type: 'shadow'
+            },
+            splitLine: {
+              show: false
+            }
           }
         ],
         yAxis: {
           type: 'value',
+          axisLine: {
+            show: false
+          },
           splitLine: {
             show: true,
             lineStyle: {
@@ -83,41 +159,17 @@ export default {
         },
         series: [
           {
-            name: 't2020',
+            name: prevName,
             type: 'bar',
-            data: [
-              32.6,
-              20.0,
-              6.4,
-              23.2,
-              25.6,
-              76.7,
-              135.6,
-              162.2,
-              32.6,
-              20.0,
-              6.4
-            ],
+            data: prev,
             itemStyle: {
               color: '#147EE1'
             }
           },
           {
-            name: 't2021',
+            name: currName,
             type: 'bar',
-            data: [
-              182.2,
-              48.7,
-              18.8,
-              26.4,
-              28.7,
-              70.7,
-              175.6,
-              182.2,
-              48.7,
-              18.8,
-              6.0
-            ],
+            data: curr,
             itemStyle: {
               color: '#28A855'
             }

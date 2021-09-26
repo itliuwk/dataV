@@ -1,3 +1,4 @@
+
 export const isFullscreenForNoScroll = () => {
   var explorer = window.navigator.userAgent.toLowerCase()
   let flag = false

@@ -1,8 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
-
 import './assets/common.less'
-
+import dayjs from 'dayjs'
 import dataV from '@jiaminghi/data-view'
 
 Vue.config.productionTip = false
@@ -18,6 +17,7 @@ require('echarts/lib/component/dataZoom')// dataZoom组件
 require('echarts/lib/component/tooltip')// tooltip
 require('echarts/lib/component/legend')// 图例
 Vue.prototype.$echarts = echarts
+Vue.prototype.$dayjs = dayjs
 
 new Vue({
   render: h => h(App)

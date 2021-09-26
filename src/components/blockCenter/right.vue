@@ -18,7 +18,7 @@
 
 <script>
 export default {
-  name: 'hello',
+  name: 'right',
   data () {
     return {}
   },
@@ -73,6 +73,9 @@ export default {
         },
         yAxis: {
           type: 'value',
+          axisLine: {
+            show: false
+          },
           splitLine: {
             show: true,
             lineStyle: {
@@ -85,7 +88,7 @@ export default {
             name: 't2020',
             type: 'line',
             stack: 'Total',
-            data: [120, 132, 101, 134, 90, 230, 220, 182, 191, 234, 290, 330],
+            data: [220, 182, 191, 234, 290, 330, 120, 132, 101, 134, 90, 230],
             itemStyle: {
               color: '#147EE1'
             },
@@ -95,7 +98,7 @@ export default {
             name: 't2021',
             type: 'line',
             stack: 'Total',
-            data: [220, 182, 191, 234, 290, 330, 120, 132, 101, 134, 90, 230],
+            data: [120, 132, 101, 134, 90, 230, 220, 182, 191, 234, 290, 330],
             itemStyle: {
               color: '#28A855'
             },

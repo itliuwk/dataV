@@ -1,7 +1,7 @@
 <template>
   <div
     id="bottom"
-    :style="{ paddingTop: isFullscreenForNoScroll ? '150px' : '' }"
+    :style="{ paddingTop: isFullscreenForNoScroll ? '130px' : '130px' }"
   >
     <div class="title">
       <p>各中心预算完成情况</p>
@@ -19,7 +19,7 @@
 <script>
 import { isFullscreenForNoScroll } from '../utils/index'
 export default {
-  name: 'hello',
+  name: 'blockBottom',
   data () {
     return {
       isFullscreenForNoScroll: isFullscreenForNoScroll()
@@ -43,6 +43,7 @@ export default {
           axisPointer: {
             type: 'cross',
             crossStyle: {
+              width: 0,
               color: '#fff'
             }
           }
@@ -94,7 +95,7 @@ export default {
             type: 'bar',
             data: [32.6, 20.0, 6.4, 23.2, 25.6, 76.7, 135.6],
             itemStyle: {
-              color: '#147EE1'
+              color: '#2D4F96'
             }
           },
           {
@@ -102,7 +103,7 @@ export default {
             type: 'bar',
             data: [182.2, 48.7, 18.8, 26.4, 28.7, 70.7, 175.6],
             itemStyle: {
-              color: '#28A855'
+              color: '#2C736E'
             }
           },
           {
@@ -110,7 +111,7 @@ export default {
             type: 'bar',
             data: [70.7, 175.6, 182.2, 26.4, 28.7, 70.7, 175.6],
             itemStyle: {
-              color: '#D5B119'
+              color: '#78542E'
             }
           },
           {
@@ -118,7 +119,7 @@ export default {
             type: 'bar',
             data: [20.3, 23.4, 23.0, 4.5, 6.3, 10.2, 20.3, 6.2],
             itemStyle: {
-              color: '#fff'
+              color: '#5F4799'
             }
           },
           {
@@ -126,7 +127,7 @@ export default {
             type: 'bar',
             data: [182.2, 48.7, 18.8, 26.4, 28.7, 70.7, 175.6],
             itemStyle: {
-              color: '#28A855'
+              color: '#7D861D'
             }
           },
           {
@@ -134,7 +135,7 @@ export default {
             type: 'bar',
             data: [70.7, 175.6, 182.2, 26.4, 28.7, 70.7, 175.6],
             itemStyle: {
-              color: '#D5B119'
+              color: '#6B092A'
             }
           }
         ]
