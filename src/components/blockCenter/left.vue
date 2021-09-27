@@ -4,7 +4,7 @@
       <p>营收情况</p>
       <div class="tips">
         <span>近两年实际+本年预算，营收同比折现</span>
-        <select class="left-select">
+        <select class="left-select" @change="selChange($event)">
           <option value="3">月度营收</option>
           <option selected value="2">季度营收</option>
           <option value="1">年度营收</option>
@@ -21,20 +21,43 @@ export default {
   data () {
     return {}
   },
-  mounted () {
-    window.addEventListener('resize', this.chartssize)
-    let cHeight = document.querySelector('.block-center').offsetHeight
-    let titHeight = document.querySelector('.title').offsetHeight
-    document.querySelector('#myChart').style.height = cHeight - titHeight + 'px'
-    this.chartssize()
-  },
+  mounted () {},
   methods: {
-    chartssize () {
-      this.myChart && this.myChart.resize()
-      !this.myChart && this.drawLine()
+    selChange (e) {
+      this.$emit('leftChange', e.target.value)
     },
-    drawLine () {
+    drawLine (prev, curr, type) {
+      let year = this.$dayjs().year()
       let myChart = this.$echarts.init(document.getElementById('myChart'))
+      let prefix = ''
+      let legendData = [
+        prefix + (year - 1),
+        prefix + year,
+        '预算' + year,
+        '营收同比'
+      ]
+      let prevData = prev.map(item => item.actualRevenue)
+      let currData = curr.map(item => item.actualRevenue)
+      let ysData = curr.map(item => item.budgetRevenue)
+      let zxData = curr.map(item => parseInt(item.revenueCompare * 100))
+      let xObj = {
+        1: ['year'],
+        2: ['Q1', 'Q2', 'Q3', 'Q4'],
+        3: [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec'
+        ]
+      }
+      let xData = xObj[type]
       // 绘制图表
       let option = {
         tooltip: {
@@ -52,10 +75,10 @@ export default {
         },
         grid: {
           top: '20',
-          right: 0
+          right: 35
         },
         legend: {
-          data: ['t2020', 't2021', 'ys2021'],
+          data: legendData,
           orient: 'vertical',
           left: 'center',
           bottom: 'bottom'
@@ -63,7 +86,7 @@ export default {
         xAxis: [
           {
             type: 'category',
-            data: ['Q1', 'Q2', 'Q3', 'Q4'],
+            data: xData,
             axisPointer: {
               type: 'shadow'
             },
@@ -72,46 +95,50 @@ export default {
             }
           }
         ],
-        yAxis: {
-          axisLine: {
-            show: false
+        yAxis: [
+          {
+            type: 'value',
+            axisLabel: {
+              formatter: '{value}'
+            }
           },
-          splitLine: {
-            show: true,
-            lineStyle: {
-              type: 'dashed'
+          {
+            type: 'value',
+            axisLabel: {
+              formatter: '{value}%'
             }
           }
-        },
+        ],
         series: [
           {
-            name: 't2020',
+            name: prefix + (year - 1),
             type: 'bar',
-            data: [32.6, 220.0, 126.4, 123.2, 25.6, 76.7, 135.6],
+            data: prevData,
             itemStyle: {
               color: '#147EE1'
             }
           },
           {
-            name: 't2021',
+            name: prefix + year,
             type: 'bar',
-            data: [232.2, 248.7, 328.8, 126.4, 28.7, 70.7, 175.6],
+            data: currData,
             itemStyle: {
               color: '#28A855'
             }
           },
           {
-            name: 'ys2021',
+            name: '预算' + year,
             type: 'bar',
-            data: [120.7, 225.6, 228.2, 126.4, 28.7, 70.7, 175.6],
+            data: ysData,
             itemStyle: {
               color: '#D5B119'
             }
           },
           {
-            name: 'zhexian',
+            name: '营收同比',
             type: 'line',
-            data: [15.3, 23.4, 223.0, 104.5, 6.3, 100.2, 20.3, 6.2],
+            yAxisIndex: 1,
+            data: zxData,
             itemStyle: {
               color: '#33FFFF'
             }

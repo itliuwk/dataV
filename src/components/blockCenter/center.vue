@@ -19,7 +19,6 @@
 </template>
 
 <script>
-import { getRevenueStructure } from '../../api/index'
 export default {
   name: 'center',
   data () {
@@ -27,76 +26,12 @@ export default {
       selVal: 3
     }
   },
-  mounted () {
-    window.addEventListener('resize', () => {
-      this.getRevenueStructure(this.selVal)
-    })
-    this.getRevenueStructure()
-  },
+  mounted () {},
   methods: {
     selChange (e) {
-      this.getRevenueStructure(e.target.value)
-      this.selVal = e.target.value
+      this.$emit('centerChange', e.target.value)
     },
-    // 营收结构
-    getRevenueStructure (type = 3) {
-      let cHeight = document.querySelector('.block-center').offsetHeight
-      let titHeight = document.querySelector('.title').offsetHeight
-      document.querySelector('#myChartCenter').style.height =
-        cHeight - titHeight + 'px'
 
-      let year = this.$dayjs().year()
-      let month = this.$dayjs().month()
-      getRevenueStructure({
-        type,
-        month: month + 1,
-        // quarter: '',
-        year
-      }).then(res => {
-        if (res.msg === 'ok') {
-          let prevFilter = ''
-          let nextFilter = ''
-          // 年度
-          if (type == 1) {
-            prevFilter = this.$dayjs().year() - 1
-            nextFilter = this.$dayjs().year()
-          }
-          // 季度
-          if (type == 2) {
-            prevFilter = this.$dayjs().year() - 1
-            nextFilter = this.$dayjs().year()
-          }
-
-          // 月度
-          if (type == 3) {
-            // 逻辑：判断月份是否等于1月份  等于1月份的话  prev需要取上一年的12月份
-            // dayjs 的月份 默认 是 0开始
-            month = month + 1
-            let obj = {
-              year: month === 1 ? year - 1 : year,
-              month: month < 10 ? '0' + (month - 1) : month.toString()
-            }
-            prevFilter = obj.year + (obj.month === '00' ? '12' : obj.month)
-            nextFilter = year + (month < 10 ? '0' + month : month.toString())
-          }
-
-          let payload = (res && res.payload) || ''
-          if (!payload) return
-          let prev = payload
-            .filter(item => item.monthKey == prevFilter)
-            .sort((a, b) => a.busSeg.charCodeAt() - b.busSeg.charCodeAt())
-
-          let curr = payload
-            .filter(item => item.monthKey == nextFilter)
-            .sort((a, b) => a.busSeg.charCodeAt() - b.busSeg.charCodeAt())
-          let revenueStructure = [prev, curr]
-          console.log('revenueStructure: ', revenueStructure)
-
-          this.myChart && this.myChart.resize()
-          this.drawLine(revenueStructure, prevFilter, nextFilter)
-        }
-      })
-    },
     drawLine (revenueStructure, prevFilter, nextFilter) {
       let myChart = this.$echarts.init(document.getElementById('myChartCenter'))
       let xData = revenueStructure[0].map(item => item.busSeg)
@@ -106,8 +41,8 @@ export default {
       let curr = revenueStructure[1].map(item =>
         parseInt(item.revenueRatio * 100)
       )
-      let prevName = 't' + prevFilter
-      let currName = 't' + nextFilter
+      let prevName = prevFilter
+      let currName = nextFilter
       // 绘制图表
       let option = {
         tooltip: {

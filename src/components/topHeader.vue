@@ -1,6 +1,6 @@
 <template>
   <div id="top-header">
-    <dv-decoration-5 class="header-center-decoration" />
+    <dv-decoration-5 :dur="5" class="header-center-decoration" />
     <div class="center-title">泛旅游经济运行分析</div>
     <div class="full-screen" @click="opi">
       {{ isFullscreenForNoScroll ? '退出全屏' : '全屏' }}

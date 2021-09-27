@@ -4,11 +4,10 @@
       <p>客流情况</p>
       <div class="tips">
         <span>本月总客流累计</span>
-        <span class="num">12,345 人</span>
+        <span class="num">{{ passengerFlow }} 人</span>
         <select aria-checked="1" class="left-select">
-          <option value="0">月度营收</option>
-          <option value="1">季度营收</option>
-          <option value="2">年度营收</option>
+          <option value="0">2021环比</option>
+          <option value="1">各利润中心</option>
         </select>
       </div>
     </div>
@@ -17,26 +16,56 @@
 </template>
 
 <script>
+import { getPassengerFlow } from '../../api/index'
 export default {
   name: 'right',
   data () {
-    return {}
+    return {
+      passengerFlow: 0
+    }
   },
   mounted () {
-    window.addEventListener('resize', this.chartssize)
-    let cHeight = document.querySelector('.block-center').offsetHeight
-    let titHeight = document.querySelector('.title').offsetHeight
-    document.querySelector('#myChartRight').style.height =
-      cHeight - titHeight + 'px'
-    this.chartssize()
+    window.addEventListener('resize', () => {
+      this.getPassengerFlow()
+    })
   },
   methods: {
-    chartssize () {
-      this.myChart && this.myChart.resize()
-      !this.myChart && this.drawLine()
+    getPassengerFlow () {
+      let cHeight = document.querySelector('.block-center').offsetHeight
+      let titHeight = document.querySelector('.title').offsetHeight
+      document.querySelector('#myChartRight').style.height =
+        cHeight - titHeight + 'px'
+
+      getPassengerFlow({ type: 2, year: this.$dayjs().year() }).then(res => {
+        console.log('res: ', res)
+
+        this.myChart && this.myChart.resize()
+        this.drawLine()
+      })
     },
-    drawLine () {
+    drawLine (prev, curr, passengerFlow = 0) {
+      this.passengerFlow = passengerFlow
       let myChart = this.$echarts.init(document.getElementById('myChartRight'))
+      let year = this.$dayjs().year()
+      let prefix = ''
+      let legendData = [prefix + (year - 1), prefix + year]
+      let prevData = prev.map(item => parseInt(item.passengerCompare * 100))
+      let currData = curr.map(item => parseInt(item.passengerCompare * 100))
+
+      let xData = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
+      ]
+
       // 绘制图表
       let option = {
         tooltip: {
@@ -46,7 +75,7 @@ export default {
           color: '#fff'
         },
         legend: {
-          data: ['t2020', 't2021'],
+          data: legendData,
           orient: 'vertical',
           left: 'center',
           bottom: 'bottom'
@@ -57,19 +86,7 @@ export default {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec'
-          ]
+          data: xData
         },
         yAxis: {
           type: 'value',
@@ -85,20 +102,20 @@ export default {
         },
         series: [
           {
-            name: 't2020',
+            name: prefix + (year - 1),
             type: 'line',
             stack: 'Total',
-            data: [220, 182, 191, 234, 290, 330, 120, 132, 101, 134, 90, 230],
+            data: prevData,
             itemStyle: {
               color: '#147EE1'
             },
             smooth: true
           },
           {
-            name: 't2021',
+            name: prefix + year,
             type: 'line',
             stack: 'Total',
-            data: [120, 132, 101, 134, 90, 230, 220, 182, 191, 234, 290, 330],
+            data: currData,
             itemStyle: {
               color: '#28A855'
             },

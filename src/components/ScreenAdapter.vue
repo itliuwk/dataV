@@ -54,7 +54,6 @@ export default {
     },
     // 设置比例
     setScale () {
-      console.log(' this.getScale(): ', this.getScale())
       this.style.transform =
         'scale(' + this.getScale() + ') translate(-50%, -50%)'
     }

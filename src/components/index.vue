@@ -10,7 +10,8 @@
               <span>{{ cumulative.actualRevenue }}万元</span>
               <span
                 >预算完成率{{
-                  parseInt(cumulative.revenueBudgetRate * 100)
+                  cumulative.revenueBudgetRate &&
+                    parseInt(cumulative.revenueBudgetRate * 100)
                 }}%</span
               >
             </p>
@@ -21,7 +22,8 @@
               <span>{{ cumulative.actualProfit }}万元</span>
               <span
                 >预算完成率{{
-                  parseInt(cumulative.revenueProfitRate * 100)
+                  cumulative.revenueProfitRate &&
+                    parseInt(cumulative.revenueProfitRate * 100)
                 }}%</span
               >
             </p>
@@ -41,12 +43,7 @@
 </template>
 
 <script>
-import {
-  getRevenueSituation,
-  getPassengerFlow,
-  getCumulative
-} from '../api/index'
-import dayjs from 'dayjs'
+import { getCumulative } from '../api/index'
 import topHeader from './topHeader'
 import BlockCenter from './blockCenter/index'
 import BlockBottom from './blockBottom'
@@ -62,50 +59,23 @@ export default {
   },
   data () {
     return {
-      clientHeight: document.body.clientHeight,
-      clientWidth: document.body.clientWidth,
       cumulative: {},
-      revenueStructure: [],
-      year: dayjs().year()
+      year: 2021
     }
   },
   mounted () {
-    // window.addEventListener('resize', this.onResize)
-    // setTimeout(() => {
-    //   this.onResize()
-    // }, 1000)
-    this.getInit()
+    this.getCumulative()
   },
   methods: {
-    getInit () {
-      this.getCumulative()
-      this.getRevenueSituation()
-      this.getPassengerFlow()
-    },
     //  累计 利润 营收
     getCumulative () {
-      getCumulative({ busType: 1, monthKey: dayjs().year() }).then(res => {
-        console.log('[ getCumulative ] >', res)
+      let year = this.$dayjs().year()
+      this.year = year
+      getCumulative({ busType: 1, monthKey: year }).then(res => {
         if (res.msg === 'ok') {
           this.cumulative = (res && res.payload && res.payload[0]) || {}
         }
       })
-    },
-
-    // 营收情况
-    getRevenueSituation () {
-      getRevenueSituation({ type: 2, year: dayjs().year() }).then(res => {
-        console.log('res: ', res)
-      })
-    },
-    // 客流情况 -- 各利润中心
-    getPassengerFlow () {
-      getPassengerFlow({ type: 2, year: dayjs().year() }).then(res => {
-        console.log('res: ', res)
-      })
-    },
-    onResize () {
-      this.clientHeight = document.body.clientHeight
     }
   }
 }
@@ -115,13 +85,15 @@ export default {
 #data-view {
   width: 100%;
   height: 100%;
-  background-color: #011238;
+  // background-color: #011238;
+  background-image: url('./img/bg.png');
+  background-size: 100% 100%;
   color: #fff;
 
-  #dv-full-screen-container {
+  .ScreenAdapter {
     // background-image: url('./img/bg.png');
     background-size: 100% 100%;
-    box-shadow: 0 0 3px blue;
+    // box-shadow: 0 0 3px blue;
     display: flex;
     flex-direction: column;
   }
