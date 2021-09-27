@@ -5,45 +5,42 @@
       <div class="tips">
         <span>本月总客流累计</span>
         <span class="num">{{ passengerFlow }} 人</span>
-        <select aria-checked="1" class="left-select">
-          <option value="0">2021环比</option>
-          <option value="1">各利润中心</option>
+        <select class="left-select" @change="selChange($event)">
+          <option value="1">2021环比</option>
+          <option value="2">各利润中心</option>
         </select>
       </div>
     </div>
-    <div id="myChartRight" :style="{ width: '800px', height: '350px' }"></div>
+    <div
+      v-show="selVal == 1"
+      id="myChartRight"
+      :style="{ width: '800px', height: '350px' }"
+    ></div>
+    <div
+      v-show="selVal == 2"
+      id="myChartRightProfit"
+      :style="{ width: '800px', height: '350px' }"
+    ></div>
   </div>
 </template>
 
 <script>
-import { getPassengerFlow } from '../../api/index'
 export default {
   name: 'right',
   data () {
     return {
-      passengerFlow: 0
+      passengerFlow: 0,
+      selVal: 1
     }
   },
-  mounted () {
-    window.addEventListener('resize', () => {
-      this.getPassengerFlow()
-    })
-  },
+  mounted () {},
   methods: {
-    getPassengerFlow () {
-      let cHeight = document.querySelector('.block-center').offsetHeight
-      let titHeight = document.querySelector('.title').offsetHeight
-      document.querySelector('#myChartRight').style.height =
-        cHeight - titHeight + 'px'
-
-      getPassengerFlow({ type: 2, year: this.$dayjs().year() }).then(res => {
-        console.log('res: ', res)
-
-        this.myChart && this.myChart.resize()
-        this.drawLine()
-      })
+    selChange (e) {
+      this.selVal = e.target.value
+      this.$emit('rightChange', e.target.value)
     },
-    drawLine (prev, curr, passengerFlow = 0) {
+    // 环比
+    drawRingRatio (prev, curr, passengerFlow = 0) {
       this.passengerFlow = passengerFlow
       let myChart = this.$echarts.init(document.getElementById('myChartRight'))
       let year = this.$dayjs().year()
@@ -122,6 +119,66 @@ export default {
             smooth: true
           }
         ]
+      }
+      myChart.setOption(option, true)
+      this.myChart = myChart
+    },
+    // 利润中心
+    drawProfitCenter (data, legendData) {
+      let myChart = this.$echarts.init(
+        document.getElementById('myChartRightProfit')
+      )
+
+      let xData = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
+      ]
+
+      // 绘制图表
+      let option = {
+        tooltip: {
+          trigger: 'axis'
+        },
+        textStyle: {
+          color: '#fff'
+        },
+        legend: {
+          data: legendData,
+          orient: 'vertical',
+          left: 'center',
+          bottom: 'bottom'
+        },
+        grid: {
+          top: '20'
+        },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: xData
+        },
+        yAxis: {
+          type: 'value',
+          axisLine: {
+            show: false
+          },
+          splitLine: {
+            show: true,
+            lineStyle: {
+              type: 'dashed'
+            }
+          }
+        },
+        series: data
       }
       myChart.setOption(option, true)
       this.myChart = myChart

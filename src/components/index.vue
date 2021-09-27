@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { getCumulative } from '../api/index'
+import { getCumulative } from '@/api/index'
 import topHeader from './topHeader'
 import BlockCenter from './blockCenter/index'
 import BlockBottom from './blockBottom'

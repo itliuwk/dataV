@@ -2,7 +2,7 @@
   <div class="blockCenter">
     <Left ref="leftBlock" @leftChange="getRevenueSituation" />
     <Center ref="centerBlock" @centerChange="getRevenueStructure" />
-    <Right ref="rightBlock" />
+    <Right ref="rightBlock" @rightChange="getRevenueStructureRight" />
   </div>
 </template>
 
@@ -13,8 +13,9 @@ import Right from './right'
 import {
   getRevenueSituation,
   getRevenueStructure,
-  getCumulative
-} from '../../api/index'
+  getCumulative,
+  getPassengerFlow
+} from '@/api/index'
 
 export default {
   name: 'index',
@@ -27,7 +28,7 @@ export default {
     return {
       leftVal: 2,
       centerVal: 3,
-      rightVal: 3,
+      rightVal: 1, //  1环比 2各利润中心
       ringRatio: []
     }
   },
@@ -41,7 +42,7 @@ export default {
     init () {
       this.getRevenueSituation(this.leftVal)
       this.getRevenueStructure(this.centerVal)
-      this.getRevenueStructureRight()
+      this.getRevenueStructureRight(this.rightVal)
     },
     // 营收情况
     getRevenueSituation (type = 2) {
@@ -158,18 +159,67 @@ export default {
         }
       })
     },
-    // 本年环比
-    getRevenueStructureRight (type = 3) {
+    // 本年环比 和 各利润中心
+    getRevenueStructureRight (type) {
       this.rightVal = type
       let cHeight = document.querySelector('.block-center').offsetHeight
       let titHeight = document.querySelector('.title').offsetHeight
-      document.querySelector('#myChartRight').style.height =
-        cHeight - titHeight + 'px'
+
+      if (type == 1) {
+        document.querySelector('#myChartRight').style.height =
+          cHeight - titHeight + 'px'
+      } else {
+        document.querySelector('#myChartRightProfit').style.height =
+          cHeight - titHeight + 'px'
+      }
 
       let year = this.$dayjs().year()
       let month = this.$dayjs().month()
+      if (type == 2) {
+        getPassengerFlow({ type: 3, year: this.$dayjs().year() }).then(res => {
+          let payload = (res && res.payload) || ''
+          if (!payload) return
 
-      getRevenueSituation({ type, year }).then(res => {
+          let busSegS = payload
+            .filter(item => !item.monthKey.indexOf(year + '01'))
+            .map(item => item.busSeg)
+          let newData = []
+          let colors = [
+            '#B80320',
+            '#D8DB09',
+            '#A46FE1',
+            '#D08527',
+            '#4CBA96',
+            '#4D7CDC',
+            '#5D6983',
+            '#282D38',
+            '#512F4A',
+            '#4E152D',
+            '#2C0B0F'
+          ]
+          busSegS.map((bItem, idx) => {
+            let data = payload
+              .filter(item => item.busSeg == bItem)
+              .sort((a, b) => a.monthKey - b.monthKey)
+              .map(item => item.passengerFlow)
+            newData.push({
+              name: bItem,
+              type: 'line',
+              stack: 'Total',
+              data,
+              itemStyle: {
+                color: colors[idx]
+              },
+              smooth: true
+            })
+            return bItem
+          })
+          this.$refs['rightBlock'].drawProfitCenter(newData, busSegS)
+        })
+        return
+      }
+
+      getRevenueSituation({ type: 3, year }).then(res => {
         let payload = (res && res.payload) || ''
         if (!payload) return
         let data = []
@@ -198,7 +248,7 @@ export default {
           if (res.msg === 'ok') {
             let passengerFlow =
               (res && res.payload && res.payload[0]).passengerFlow || 0
-            this.$refs['rightBlock'].drawLine(prev, curr, passengerFlow)
+            this.$refs['rightBlock'].drawRingRatio(prev, curr, passengerFlow)
           }
         })
       })

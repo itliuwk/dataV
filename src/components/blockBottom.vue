@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { isFullscreenForNoScroll } from '../utils/index'
+import { isFullscreenForNoScroll } from '@/utils/index'
 export default {
   name: 'blockBottom',
   data () {

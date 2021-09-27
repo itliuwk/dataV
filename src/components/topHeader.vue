@@ -16,7 +16,7 @@
 <script>
 import dayjs from 'dayjs'
 import screenfull from 'screenfull'
-import { isFullscreenForNoScroll } from '../utils/index'
+import { isFullscreenForNoScroll } from '@/utils/index'
 const DAY = {
   0: '星期日',
   1: '星期一',
